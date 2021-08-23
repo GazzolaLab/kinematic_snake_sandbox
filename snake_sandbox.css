@@ -1,0 +1,48 @@
+body {
+  font-family : sans-serif;
+  font-size:18px;
+  width:800px;
+  padding: 20px;
+  margin: auto;
+/*  margin-left:auto;
+  margin-right:auto;
+  background-color:#e0e0e0;
+*/
+  background-color:#ffffff;
+}
+
+h1 {
+  font-size:32px;
+  text-align:center;
+  margin: auto;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content:center;
+  align-items: center;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  /*flex-basis: 100%;*/
+  flex: 1;
+}
+
+.double_width_column {
+  display: flex;
+  flex-direction: column;
+  /*flex-basis: 100%;*/
+  flex: 2;
+}
+
+.hide{
+  display:none
+};
+
+.visible{
+};

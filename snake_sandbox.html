@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta name="description" content="Friction modulation for limbless locomotion">
+  <!-- <meta name="description" content="A minimal (setting with coupled )elastic solid--fluid interactions"> -->
+  <meta name="keywords" content="Cosserat rod, locomotion, snake">
+  <meta name="author" content="Tejaswin Parthasarathy">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test widget</title>
+  <link rel="stylesheet" href="snake_sandbox.css">
+</head>
+
+<body>
+  <!-- Load Mathjax first for rendering-->
+  <!--   <script>
+  MathJax = {
+    tex: {
+      inlineMath: ['\\(', '\\)']
+    },
+    svg: {
+      fontCache: 'global'
+    }
+  };
+  </script>
+  -->
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+  <h1>
+    Friction modulation for limbless locomotion
+  </h1>
+
+  <hr>
+
+<!--   Begin buttons -->
+  <div style="padding:20px; margin-left:auto; margin-right:auto; text-align:center;">
+    <div class="row">
+
+      <div class="column">
+        <div class="row">
+          <button id="initButton" class="animate border border-black p-1 mr-2 bg-yellow-300"><span id="loadingIndicator" class="inline-block"></span><span>Initialize engine</span></button>
+         </div>
+      </div>
+
+      <div class="column">
+        <div class="row">
+          <button id="simulate" disabled class="border border-black p-1 opacity-50 cursor-not-allowed mr-2">Simulate!</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<!--   End buttons -->
+
+
+  <div>
+    <div class="row">
+
+        <!-- Options pane -->
+        <div class="column">
+
+          <!-- Physical parameters pane -->
+          <h3 style="text-align:center;">
+            Physical parameters
+          </h3>
+
+          <!-- Physical parameters box -->
+          <div class="row">
+              <!--- Froude --->
+              <span>Froude number \( Fr\) = </span> <span id="froudeNumberReadout"> </span>
+              <br>
+              <div class="row">
+                <span class="column">
+                  <input type="range" min="0" max="100" step="5" value="10"
+                  id="froudeNumberSlider">
+                </span>
+              </div>
+              <br>
+
+              <!--- Lateral friction ratio --->
+              <span>Lateral friction ratio \(\mu_t / \mu_f\) = </span> <span id="lateralFrictionReadout"> </span>
+              <br>
+              <div class="row">
+                <span class="column">
+                  <input type="range" min="0" max="100" step="5" value="10"
+                  id="lateralFrictionSlider">
+                </span>
+              </div>
+              <br>
+
+              <!--- Backward friction ratio --->
+              <span>Back friction ratio \(\mu_b / \mu_f\) = </span><span id="backwardFrictionReadout"> </span>
+              <br>
+              <div class="row">
+                <span class="column">
+                  <input type="range" min="0" max="100" step="5" value="10"
+                  id="backwardFrictionSlider">
+                </span>
+              </div>
+              <br>
+
+          </div>
+
+          <hr>
+
+          <!-- Curvature selection pane -->
+          <h3 style="text-align:center;">
+            Curvature parameters
+          </h3>
+
+          <!-- Curvature selection box -->
+          <div class="row">
+
+            <div class="row">
+              <div class="column">
+                Activation : <!-- <span id="curvatureReadout"></span> -->
+              </div>
+
+              <span class="column">
+                <select id="curvatureSelection">
+                          <option value="sin">Sinusoidal</option>
+                          <option value="test">Test</option>
+                </select>
+              </span>
+            </div>
+
+            <hr>
+
+            <!-- Curvature readout -->
+            <div class="row">
+              <span> Activation function \(\kappa (s,t) \) = </span> <span id="curvatureActivationReadout"></span>
+            </div>
+
+            <hr>
+
+            <!-- Curvature params -->
+            <div class="row">
+
+              <div id="sinParams" class="hide">
+                <div class="row">
+                  <!--- Amp --->
+                  <div class="row">
+                    <span>Amplitude \( \epsilon\) = </span> <span id="sinAmplitudeReadout"> </span>
+                  </div>
+
+                  <div class="row">
+                    <span>
+                      <input type="range" min="0" max="100" step="5" value="50"
+                      id="sinAmplitudeSlider">
+                    </span>
+                  </div>
+
+                  <!--- Wavenumber --->
+                  <div class="row">
+                    <span>Wavenumber \( k \) = </span> <span id="sinWaveNumberReadout"> </span>
+                  </div>
+
+                  <div class="row">
+                    <span>
+                      <input type="range" min="1" max="10" step="1" value="5"
+                      id="sinWaveNumberSlider">
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+
+              <div id="testParams" class="hide">
+                <div>
+                  Test
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <hr>
+
+          <!-- Curvature selection pane -->
+          <h3 style="text-align:center;">
+            Lift parameters
+          </h3>
+
+          <!-- Lift selection box -->
+          <div class="row">
+
+            <div class="row">
+              <div class="column">
+                Lift : <!-- <span id="curvatureReadout"></span> -->
+              </div>
+
+              <span class="column">
+                <select id="liftSelection">
+                          <option value="sin">Sinusoidal</option>
+                          <option value="test">Test</option>
+                </select>
+              </span>
+            </div>
+
+            <hr>
+
+            <!-- Lift readout -->
+            <div class="row">
+              <span> Lift function \(\hat{N} (s,t) \) = </span> <span id="liftActivationReadout"></span>
+            </div>
+
+            <hr>
+
+            <!-- Lift params -->
+            <div class="row">
+
+              <div id="liftSinParams" class="hide">
+                <div class="row">
+                  <!--- Amp --->
+                  <div class="row">
+                    <span>Amplitude \( A \) = </span> <span id="liftSinAmplitudeReadout"> </span>
+                  </div>
+
+                  <div class="row">
+                    <span>
+                      <input type="range" min="0" max="100" step="5" value="50"
+                      id="liftSinAmplitudeSlider">
+                    </span>
+                  </div>
+
+                  <!--- Wavenumber --->
+                  <div class="row">
+                    <span>Wavenumber \( k_l \) = </span> <span id="liftSinWaveNumberReadout"> </span>
+                  </div>
+
+                  <div class="row">
+                    <span>
+                      <input type="range" min="1" max="10" step="1" value="5"
+                      id="liftSinWaveNumberSlider">
+                    </span>
+                  </div>
+
+                  <!--- Phase --->
+                  <div class="row">
+                    <span>Phase \( \Phi \) = </span> <span id="liftSinPhaseReadout"> </span>
+                  </div>
+
+                  <div class="row">
+                    <span>
+                      <input type="range" min="0" max="100" step="10" value="0"
+                      id="liftSinPhaseSlider">
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+
+              <div id="liftTestParams" class="hide">
+                <div>
+                  Test
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Plot pane -->
+        <div class="double_width_column">
+        </div>
+
+    </div>
+  </div>
+
+<!--   <div id="content_1" class="inv">Content 1</div> -->
+
+  <!--   <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script> -->
+  <script type="text/javascript" src="snake_sandbox.js" defer></script>
+  <noscript>
+    <p>Oops! This website requires a JavaScript-enabled browser.</p>
+  </noscript>
+
+</body>
+
+</html>
