@@ -4,6 +4,23 @@
 // let math_promise = Promise.resolve(); // Used to hold chain of typesetting
 // calls
 
+/* Mock */
+class Simulator {
+  constructor() { this.times = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]; }
+
+  com(index) {
+    return [ Math.cos(this.times[index]), Math.sin(this.times[index]) ];
+  }
+
+  call(index) {
+    return [
+      [ this.com(index)[0] + 0.1, this.com(index)[0] + 0.2 ],
+      [ this.com(index)[1] + 0.3, this.com(index)[0] + 0.4 ]
+    ]
+  }
+  time(index) { return this.times[index]; }
+}
+
 /* Utilities */
 function round(value, precision = 1) {
   var multiplier = Math.pow(10, precision || 0);
@@ -15,24 +32,53 @@ function transform(slider_value) {
   return parseInt(slider_value) == 0 ? 0.1 : (parseFloat(slider_value)) * 0.1;
 }
 
-function typeset(code) {
-  MathJax.startup.promise =
-      MathJax.startup.promise.then(() => MathJax.typesetPromise(code()))
-          .catch((err) => console.log('Typeset failed: ' + err.message));
-  return MathJax.startup.promise;
+function linspace(start, stop, num, endpoint = true) {
+  const div = endpoint ? (num - 1) : num;
+  const step = (stop - start) / div;
+  return Array.from({length : num}, (_, i) => start + step * i);
 }
 
-function typeset_curvature() {
+// function typeset(code) {
+//   MathJax.startup.promise =
+//       MathJax.startup.promise.then(() => MathJax.typesetPromise(code()))
+//           .catch((err) => console.log('Typeset failed: ' + err.message));
+//   return MathJax.startup.promise;
+// }
+
+/* Display of curvature */
+function typesetCurvature() {
   switch (curvatureSelection.value) {
+  case 'none':
+    return '';
   case 'sin':
-    return '\\( \\epsilon \\cos\\left( 2\\pi k (s + t)\\right) \\)';
+    return '\\epsilon \\cos\\left( 2\\pi k (s + t)\\right)';
   case 'test':
-    return '\\( \\alpha = 2 \\)';
+    return '\\alpha = 2';
   }
 }
 
-/* Display of curvature */
-const curvatureParamIDs = [ 'sinParams', 'testParams' ];
+function getCurvatureParams() {
+  switch (curvatureSelection.value) {
+  case 'none':
+    return new Map();
+  case 'sin':
+    return new Map([
+      [ 'epsilon', parseFloat(sinAmplitude()) ],
+      [ 'wave_number', parseFloat(sinWaveNumber()) ]
+    ]);
+  case 'test':
+    return new Map();
+  }
+}
+
+function getCurvatureMethodName() {
+  switch (curvatureSelection.value) {
+  case 'sin':
+    return 'sin';
+  }
+}
+
+const curvatureParamIDs = [ 'noneParams', 'sinParams', 'testParams' ];
 
 async function hideCurvatureParams() {
   curvatureParamIDs.forEach(
@@ -40,22 +86,30 @@ async function hideCurvatureParams() {
 }
 
 async function showCurvatureActivation() {
-  await typeset(() => {
-    // console.log(typeset_curvature());
-    curvatureActivationReadout.innerHTML = typeset_curvature();
-    return [ curvatureActivationReadout ];
-  });
-  // curvatureActivationReadout.innerHTML = typeset_curvature();
+  // Mathjax3
+  // await typeset(() => {
+  //   // console.log(typeset_curvature());
+  //   curvatureActivationReadout.innerHTML = typesetCurvature();
+  //   return [ curvatureActivationReadout ];
+  // });
+
+  let math = MathJax.Hub.getAllJax(curvatureActivationReadout)[0];
+  // MathJax.Hub.Queue([ "Typeset", MathJax.Hub, math ]);
+  MathJax.Hub.Queue([ "Text", math, typesetCurvature() ]);
+  // MathJax.Hub.Queue([ "Typeset", MathJax.Hub, curvatureActivationReadout
+  // ]); curvatureActivationReadout.innerHTML = typeset_curvature();
 }
 
 async function showCurvatureParameters() {
   hideCurvatureParams();
   const elementID = (() => {
     switch (curvatureSelection.value) {
-    case 'sin':
+    case 'none':
       return curvatureParamIDs[0];
-    case 'test':
+    case 'sin':
       return curvatureParamIDs[1];
+    case 'test':
+      return curvatureParamIDs[2];
     }
   })();
   // console.log(elementID);
@@ -67,8 +121,42 @@ async function showCurvatureInfo() {
   showCurvatureParameters();
 }
 
-/* Display of lift */
-const liftParamIDs = [ 'liftSinParams', 'liftTestParams' ];
+function typesetLift() {
+  switch (liftSelection.value) {
+  case 'none':
+    return '';
+  case 'sin':
+    return '\\scriptstyle \\max\\{0,A \\cos(2 \\pi k_l (s+t+\\Phi))+1 \\}';
+  case 'test':
+    return '\\alpha = 2';
+  }
+}
+
+function getLiftParams() {
+  switch (liftSelection.value) {
+  case 'none':
+    return new Map();
+  case 'sin':
+    return new Map([
+      [ 'lift_amp', parseFloat(liftSinAmplitude()) ],
+      [ 'lift_wave_number', parseFloat(liftSinWaveNumber()) ],
+      [ 'phase', parseFloat(liftSinPhase()) ]
+    ]);
+  case 'test':
+    return new Map();
+  }
+}
+
+function getLiftMethodName() {
+  switch (liftSelection.value) {
+  case 'none':
+    return 'no_lift';
+  case 'sin':
+    return 'sin_lift';
+  }
+}
+
+const liftParamIDs = [ 'liftNoneParams', 'liftSinParams', 'liftTestParams' ];
 
 async function hideLiftParams() {
   liftParamIDs.forEach(
@@ -76,22 +164,26 @@ async function hideLiftParams() {
 }
 
 async function showLiftActivation() {
-  await typeset(() => {
-    // console.log(typeset_curvature());
-    liftActivationReadout.innerHTML = typeset_curvature();
-    return [ liftActivationReadout ];
-  });
-  // curvatureActivationReadout.innerHTML = typeset_curvature();
+  // await typeset(() => {
+  //   // console.log(typeset_curvature());
+  //   liftActivationReadout.innerHTML = typesetLift();
+  //   return [ liftActivationReadout ];
+  // });
+
+  let math = MathJax.Hub.getAllJax(liftActivationReadout)[0];
+  MathJax.Hub.Queue([ "Text", math, typesetLift() ]);
 }
 
 async function showLiftParameters() {
   hideLiftParams();
   const elementID = (() => {
     switch (liftSelection.value) {
-    case 'sin':
+    case 'none':
       return liftParamIDs[0];
-    case 'test':
+    case 'sin':
       return liftParamIDs[1];
+    case 'test':
+      return liftParamIDs[2];
     }
   })();
   // console.log(elementID);
@@ -181,13 +273,24 @@ const liftSinWaveNumberReadout =
     document.querySelector("#liftSinWaveNumberReadout");
 const liftSinPhaseReadout = document.querySelector("#liftSinPhaseReadout");
 
+// button
+const simulateButton = document.querySelector("#simulateButton");
+
+function startSimulatorWithLoadingButton() {
+  simulateButton.classList.add("button--loading");
+  startSimulator();
+  simulateButton.classList.remove("button--loading");
+}
+
+simulateButton.addEventListener('click', startSimulatorWithLoadingButton);
+
 function addListeners() {
 
   function reset_and_(...fns) {
     // return a closure
     return () => {
       fns.forEach(fn => fn());
-      // restartSimulator();
+      startSimulatorWithLoadingButton();
     }
   };
 
@@ -202,7 +305,7 @@ function addListeners() {
     [ liftSinPhaseSlider, reset_and_(showLiftSinPhase) ]
   ]
   slider_pairs.forEach((p) => {
-    p[0].addEventListener("input", p[1]);
+    // p[0].addEventListener("input", p[1]);
     p[0].addEventListener("change", p[1]);
   });
 
@@ -213,28 +316,317 @@ function addListeners() {
   selection_pairs.forEach((p) => { p[0].addEventListener("change", p[1]); });
 }
 
-function showParameterInfo() {
+async function reRenderMath() {
   showCurvatureInfo();
   showLiftInfo();
+}
 
+function showStaticParameterInfo() {
   // physical parameters
   showFroudeNumber();
   showLateralFriction();
   showBackwardFriction();
-
-  // curvature
-  showSinAmplitude();
-  showSinWaveNumber();
-
-  // lift
-  showLiftSinAmplitude();
-  showLiftSinWaveNumber();
-  showLiftSinPhase();
 }
 
+function showParameterInfo() {
+
+  reRenderMath().then(() => {
+    showStaticParameterInfo();
+
+    // curvature
+    showSinAmplitude();
+    showSinWaveNumber();
+
+    // lift
+    showLiftSinAmplitude();
+    showLiftSinWaveNumber();
+    showLiftSinPhase();
+  });
+}
+
+/* Plotting */
+function getPlotLayout() {
+  return {
+    xaxis: {
+      title: 'x',
+      range: [ -1, 1 ],
+      zeroline: false,
+      // linecolor : 'black',
+      // linewidth : 2,
+    },
+        yaxis: {
+          title: 'y',
+          scaleanchor: "x",
+          scaleratio: 1,
+          range: [ -1, 1 ],
+          zeroline: false,
+          // linecolor : 'black',
+          // linewidth : 2,
+        },
+        autosize: true, margin: {l: 40, r: 40, b: 40, t: 40}, showlegend: false
+  }
+}
+
+// placehold plot
+function placeholderPlot() {
+  // window.PlotlyConfig = {MathJaxConfig : 'local'};
+  let plot = document.getElementById('plot_div');
+  Plotly.newPlot(plot,
+                 [
+                   {
+                     x : [ 0 ],
+                     y : [ 0 ],
+                     mode : 'lines',
+                     type : 'scatter',
+                     // marker : {size : 30}
+                     line : {color : 'rgb(219, 64, 82)', width : 3},
+                   },
+                 ],
+                 getPlotLayout());
+}
+
+function assembleDataForPlot(data, col) {
+  return [ {
+    x : data[0],
+    y : data[1],
+    mode : 'lines',
+    type : 'scatter',
+    line : {color : col, width : 3}
+  } ]
+}
+
+function staticPlot(all_data, all_com, all_alpha) {
+  plot_data = [];
+  for (var i = 0; i < all_data.length; ++i) {
+    const curr_alpha = all_alpha[i];
+
+    plot_data = plot_data.concat(
+        assembleDataForPlot(all_data[i], `rgba(41, 118, 187, ${curr_alpha})`));
+  }
+
+  // add a scatter to the plot data
+  const com_x = all_com.map(res => res[0][0]);
+  const com_y = all_com.map(res => res[1][0]);
+
+  plot_data = plot_data.concat([ {
+    x : com_x,
+    y : com_y,
+    mode : 'markers',
+    type : 'scatter',
+    marker : {size : 8, color : 'rgb(0, 0, 0)'}
+  } ]);
+
+  // console.log(plot_data);
+
+  Plotly.newPlot('plot_div', plot_data, getPlotLayout());
+}
+
+// build up config
+async function buildSimulationConfig() {
+
+  const froude = parseFloat(froudeNumber());
+  const mu_f = parseFloat(1.0);
+  const mu_b = parseFloat(backwardFriction() * mu_f);
+  const mu_lat = parseFloat(lateralFriction() * mu_f);
+
+  const physicalParams = new Map([
+    [ "froude", froude ],
+    [ "mu_f", 1.0 ],
+    [ "mu_b", mu_b ],
+    [ "mu_lat", mu_lat ],
+  ]);
+
+  return new Map(
+      [...physicalParams, ...getCurvatureParams(), ...getLiftParams() ]);
+}
+
+// this function return the promise of pyodide runPython function
+function generateSimulator(final_time, n_points, config) {
+  // return gistFetchPromise.then(res => pyodide.runPython(res))
+  //     .then(_ => { return pyodide.globals.walk(stepNumber); })
+  // return new Promise(function(resolve, reject) {
+  //   // var sim = new Simulator;
+  //   resolve(new Simulator());
+  // });
+
+  const method_name = 'simulate_snake_with_' + getCurvatureMethodName() + '_' +
+                      getLiftMethodName();
+  // console.log(method_name);
+  return fileFetchPromise.then(res => pyodide.runPython(res)).then(_ => {
+    return pyodide.globals.get(method_name)(final_time, n_points, config);
+  });
+}
+
+// this function execute the animation
+async function runSimulator(config) {
+  const final_time = 16.0;
+  const n_samples = 12;
+  const com_n_samples = 3 * n_samples;
+  const iters = linspace(0, com_n_samples, n_samples, endpoint = false);
+  const com_iters = linspace(0, com_n_samples, com_n_samples, endpoint = false);
+  // const times = linspace(0.0, final_time, n_samples, endpoint = false);
+
+  simulatorPromise = generateSimulator(final_time, com_n_samples, config);
+
+  simulatorPromise.then(sim => {
+    // stores (4,) tuples
+    var dataArr = new Array(n_samples);
+    var comArr = new Array(com_n_samples);
+    var alphaArr = new Array(n_samples);
+
+    // populate the data_arr
+    iters.forEach((sim_index, arr_index) => {
+      let pyresult = sim.call(sim_index);
+      let result = [...pyresult ];
+      pyresult.destroy();
+
+      // console.log(result);
+      var local_data = result.map(res => res.toJs());
+      // console.log(local_data);
+      // [2, 50] sort of an array
+      dataArr[arr_index] = local_data;
+
+      alphaArr[arr_index] = Math.pow(10, (arr_index / (n_samples - 1) - 1));
+    });
+
+    com_iters.forEach((index) => {
+      // dataArr[index] = sim.call(index);
+      let pyCOMresult = sim.com(index);
+      // (2, ) float
+      let COMresult = [...pyCOMresult ];
+      pyCOMresult.destroy();
+
+      comArr[index] = COMresult.map(res => res.toJs());
+    });
+
+    // clear the plot first
+    placeholderPlot();
+    // with this data array
+    staticPlot(dataArr, comArr, alphaArr);
+  });
+}
+
+async function startSimulator() {
+  const config = await buildSimulationConfig();
+  console.log(config);
+  runSimulator(config);
+}
+
+// Finally initialize the engine
+// Interface to python
+/*Initialization functions*/
+
+// dynamically load the script on demand
+class ScriptLoader {
+  constructor(script) {
+    this.script = script;
+    this.scriptElement = document.createElement('script');
+    this.head = document.querySelector('head');
+  }
+
+  load() {
+    return new Promise((resolve, reject) => {
+      this.scriptElement.src = this.script;
+      this.scriptElement.onload = e => resolve(e);
+      this.scriptElement.onerror = e => reject(e);
+      this.head.appendChild(this.scriptElement);
+    });
+  }
+}
+
+// async function to fetch the raw content of the gist
+async function fetchFile(filename) {
+  // const gistID = 'ea4b6c8e831ff923640aeda185241d14'
+  // const url = `https://api.github.com/gists/${gistID}`
+  // const fileName = "random_walk_2d.py"
+
+  var rawContent = await fetch(filename)
+                       // .then(res => res.json())
+                       .then(data => {
+                         // console.log(data.text());
+                         return data.text();
+                         // return data.files[fileName].content;
+                       });
+  // console.log(rawContent);
+
+  return rawContent
+}
+
+async function init() {
+  initButton.classList.add("button--loading");
+
+  // loadingIndicator.classList.add('mr-2', 'progressAnimate');
+  const loader = new ScriptLoader(
+      'https://cdn.jsdelivr.net/pyodide/v0.17.0/full/pyodide.js');
+  await loader.load();
+  await loadPyodide(
+      {indexURL : 'https://cdn.jsdelivr.net/pyodide/v0.17.0/full/'});
+  await pyodide.loadPackage([ 'numpy', 'scipy', 'sympy' ]);
+
+  // loader.load()
+  //     .then(
+  //         e => {
+  //             loadPyodide(
+  //                 {indexURL :
+  //                 "https://cdn.jsdelivr.net/pyodide/v0.17.0/full/"})
+  //                 .then(
+  //                     () => {
+  //                         pyodide
+  //                             .loadPackage([
+  //                               'numpy',
+  //                               'scipy',
+  //                             ])
+  //                             // .then(() => {pyodide.runPythonAsync(`
+  //                             //           import micropip; await
+  //                             //
+  //                             micropip.install('parallel_slab-1.0.0-py3-none-any.whl');
+  //                             //           import parallel_slab
+  //                             //            `)})
+  //                             .then(() => {
+  //                               console.log("Numpy, Scipy is now
+  //                               available");
+  //                               // reset styles of buttons
+  //                               loadingIndicator.classList.remove(
+  //                                   'mr-2', 'progressAnimate');
+  //                               startButton.removeAttribute('disabled');
+  //                               pauseButton.removeAttribute('disabled');
+  //                               resetButton.removeAttribute('disabled');
+  //                             })})})
+  //     .catch(e => {console.log(e)});
+  await pyodide.runPythonAsync(
+      `import micropip; await micropip.install('kinematic_snake_core-1.0.0-py3-none-any.whl');`);
+
+  console.log("Numpy, Scipy, Sympy is now available ");
+  // reset styles of buttons
+  // loadingIndicator.classList.remove('mr-2', 'progressAnimate');
+  simulateButton.removeAttribute('disabled');
+  // pauseButton.removeAttribute('disabled');
+  // resetButton.removeAttribute('disabled');
+
+  curvatureSelection.removeAttribute('disabled');
+  liftSelection.removeAttribute('disabled');
+
+  // now change the curvature and lift selection to sin
+  curvatureSelection.selectedIndex = 1; // select sin
+  liftSelection.selectedIndex = 0;      // select none
+
+  // show all info
+  showParameterInfo();
+
+  initButton.classList.remove("button--loading");
+}
+
+const initButton = document.querySelector("#initButton");
+initButton.addEventListener('click', init, {once : true});
+
 // placeholder plot
-// placeholderPlot();
 addListeners();
 
 // display at first go
-showParameterInfo();
+MathJax.Hub.Queue([ "Typeset", MathJax.Hub ]);
+showStaticParameterInfo();
+
+placeholderPlot();
+
+// perform the gist fetching
+let fileFetchPromise = fetchFile("snake_sandbox.py");
