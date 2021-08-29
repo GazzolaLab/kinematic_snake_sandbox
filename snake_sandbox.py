@@ -1,6 +1,7 @@
 from kinematic_snake_core import run_snake, KinematicSnake, LiftingKinematicSnake
 import numpy as np
 from scipy.interpolate import interp1d
+from scipy.integrate import trapz
 
 
 class SandboxInterface:
@@ -59,4 +60,25 @@ def simulate_snake_with_sin_no_lift(
     # snake_params.update('lifting_activation', lambda s, t: 1.0)
     snake_params['lift_amp'] = 0.0
     snake_params['lift_wave_number'] = 2.0  # doesnt matter
+    return _simulate_snake(final_time, n_points_in_time, **snake_params)
+
+
+def simulate_snake_with_sin_exp_lift(
+    final_time: float, n_points_in_time: int, snake_params
+):
+    epsilon = snake_params['epsilon']
+    wave_number = snake_params['wave_number']
+    a_value = snake_params.get('lift_a_value', 0.02)
+    print(a_value)
+
+    def my_custom_lifting_activation(s, time_v):
+        if time_v > 2.0:
+            lateral_wave = epsilon * np.cos(wave_number * np.pi * (s + time_v))
+            liftwave = np.exp(-(a_value ** 2) * lateral_wave ** 2)
+            np.maximum(0, liftwave, out=liftwave)
+            return liftwave / trapz(liftwave, s)
+        else:
+            return 1.0 + 0.0 * s
+
+    snake_params['lifting_activation'] = my_custom_lifting_activation
     return _simulate_snake(final_time, n_points_in_time, **snake_params)

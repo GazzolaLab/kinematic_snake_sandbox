@@ -49,6 +49,9 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
           <span class="loading_button_text">Initialize engine</span>
         </button>
       </div>
+      <div class="row">
+          <span style="font-size:14px;">Takes ~10--30 s</span>
+      </div>
     </div>
 
     <div class="column">
@@ -57,7 +60,22 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
           <span class="loading_button_text">Simulate!</span>
         </button>
       </div>
+      <div class="row">
+          <span style="font-size:14px;">First simulation takes longer</span>
+      </div>
     </div>
+
+    <div class="column">
+      <div class="row">
+        <button id="resetButton" type="button" class="big_button">
+          <span>Reset defaults</span>
+        </button>
+      </div>
+      <div class="row">
+          <span style="font-size:14px;">Reset simulation parameters</span>
+      </div>
+    </div>
+
 
   </div>
 </div>
@@ -77,17 +95,6 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
       <!-- Physical parameters box -->
       <div class="row">
-        <!--- Froude --->
-        <span>Froude number \( Fr\) = </span> <span id="froudeNumberReadout"> </span>
-        <br>
-        <div class="row">
-          <span class="column">
-            <input type="range" min="0" max="100" step="5" value="10"
-            id="froudeNumberSlider">
-          </span>
-        </div>
-        <br>
-
         <!--- Lateral friction ratio --->
         <span>Lateral friction ratio \(\mu_t / \mu_f\) = </span> <span id="lateralFrictionReadout"> </span>
         <br>
@@ -99,8 +106,19 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
         </div>
         <br>
 
+        <!--- Froude --->
+        <span>Froude number \( Fr\) = </span> <span id="froudeNumberReadout"> </span>
+        <br>
+        <div class="row">
+          <span class="column">
+            <input type="range" min="0" max="100" step="5" value="1"
+            id="froudeNumberSlider">
+          </span>
+        </div>
+        <br>
+
         <!--- Backward friction ratio --->
-        <span>Back friction ratio \(\mu_b / \mu_f\) = </span><span id="backwardFrictionReadout"> </span>
+<!--         <span>Back friction ratio \(\mu_b / \mu_f\) = </span><span id="backwardFrictionReadout"> </span>
         <br>
         <div class="row">
           <span class="column">
@@ -109,7 +127,7 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
           </span>
         </div>
         <br>
-
+ -->
       </div>
 
       <hr>
@@ -131,7 +149,7 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
             <select disabled id="curvatureSelection">
               <option value="none"></option>
               <option value="sin">Sinusoidal</option>
-              <option value="test">Test</option>
+              <!-- <option value="test">Test</option> -->
             </select>
           </span>
         </div>
@@ -179,7 +197,7 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
               <div class="row">
                 <span>
-                  <input type="range" min="1" max="10" step="1" value="2"
+                  <input type="range" min="1" max="4" step="1" value="2"
                   id="sinWaveNumberSlider">
                 </span>
               </div>
@@ -217,7 +235,7 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
             <select disabled id="liftSelection">
               <option value = "none"> None </option>
               <option value="sin">Sinusoidal</option>
-              <option value="test">Test</option>
+              <option value="exp">Exponential</option>
             </select>
           </span>
         </div>
@@ -253,7 +271,7 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
               <div class="row">
                 <span>
-                  <input type="range" min="0" max="100" step="5" value="50"
+                  <input type="range" min="0" max="20" step="5" value="10"
                   id="liftSinAmplitudeSlider">
                 </span>
               </div>
@@ -265,7 +283,7 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
               <div class="row">
                 <span>
-                  <input type="range" min="1" max="10" step="1" value="5"
+                  <input type="range" min="1" max="4" step="1" value="1"
                   id="liftSinWaveNumberSlider">
                 </span>
               </div>
@@ -286,9 +304,19 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
           </div>
 
 
-          <div id="liftTestParams" class="hide">
-            <div>
-              Test
+          <div id="liftExpParams" class="hide">
+            <div class="row">
+              <!--- Coeff --->
+              <div class="row">
+                <span>Exp. Coeff \( A \) = </span> <span id="liftExpCoeffReadout"> </span>
+              </div>
+
+              <div class="row">
+                <span>
+                  <input type="range" min="1" max="3" step="1" value="2"
+                  id="liftExpCoeffSlider">
+                </span>
+              </div>
             </div>
           </div>
 

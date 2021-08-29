@@ -36,6 +36,8 @@ function transform(slider_value) {
   return parseInt(slider_value) == 0 ? 0.1 : (parseFloat(slider_value)) * 0.1;
 }
 
+function inverse_transform(value) { return parseInt(value * 10); }
+
 function linspace(start, stop, num, endpoint = true) {
   const div = endpoint ? (num - 1) : num;
   const step = (stop - start) / div;
@@ -56,8 +58,8 @@ function typesetCurvature() {
     return '';
   case 'sin':
     return '\\epsilon \\cos\\left( 2\\pi k (s + t)\\right)';
-  case 'test':
-    return '\\alpha = 2';
+    // case 'test':
+    //   return '\\alpha = 2';
   }
 }
 
@@ -70,8 +72,8 @@ function getCurvatureParams() {
       [ 'epsilon', parseFloat(sinAmplitude()) ],
       [ 'wave_number', parseFloat(sinWaveNumber()) ]
     ]);
-  case 'test':
-    return new Map();
+    // case 'test':
+    //   return new Map();
   }
 }
 
@@ -112,8 +114,8 @@ async function showCurvatureParameters() {
       return curvatureParamIDs[0];
     case 'sin':
       return curvatureParamIDs[1];
-    case 'test':
-      return curvatureParamIDs[2];
+      // case 'test':
+      //   return curvatureParamIDs[2];
     }
   })();
   // console.log(elementID);
@@ -131,8 +133,8 @@ function typesetLift() {
     return '';
   case 'sin':
     return '\\scriptstyle \\max\\{0,A \\cos(2 \\pi k_l (s+t+\\Phi))+1 \\}';
-  case 'test':
-    return '\\alpha = 2';
+  case 'exp':
+    return '\\exp \\left( -A^{2} \\kappa^{2}\\right)';
   }
 }
 
@@ -146,8 +148,8 @@ function getLiftParams() {
       [ 'lift_wave_number', parseFloat(liftSinWaveNumber()) ],
       [ 'phase', parseFloat(liftSinPhase()) ]
     ]);
-  case 'test':
-    return new Map();
+  case 'exp':
+    return new Map([ [ 'lift_a_value', parseFloat(liftExpCoeff()) ] ]);
   }
 }
 
@@ -157,10 +159,12 @@ function getLiftMethodName() {
     return 'no_lift';
   case 'sin':
     return 'sin_lift';
+  case 'exp':
+    return 'exp_lift';
   }
 }
 
-const liftParamIDs = [ 'liftNoneParams', 'liftSinParams', 'liftTestParams' ];
+const liftParamIDs = [ 'liftNoneParams', 'liftSinParams', 'liftExpParams' ];
 
 async function hideLiftParams() {
   liftParamIDs.forEach(
@@ -186,7 +190,7 @@ async function showLiftParameters() {
       return liftParamIDs[0];
     case 'sin':
       return liftParamIDs[1];
-    case 'test':
+    case 'exp':
       return liftParamIDs[2];
     }
   })();
@@ -200,26 +204,30 @@ async function showLiftInfo() {
 }
 
 function froudeNumber() { return round(transform(froudeNumberSlider.value)); }
+function defaultFroudeNumber() { return inverse_transform(0.5); }
 function showFroudeNumber() { froudeNumberReadout.innerHTML = froudeNumber(); }
 
 function lateralFriction() {
   return round(transform(lateralFrictionSlider.value));
 }
+function defaultLateralFriction() { return inverse_transform(2.0); }
 function showLateralFriction() {
   lateralFrictionReadout.innerHTML = lateralFriction();
 }
 
-function backwardFriction() {
-  return round(transform(backwardFrictionSlider.value))
-}
-function showBackwardFriction() {
-  backwardFrictionReadout.innerHTML = backwardFriction();
-}
+// function backwardFriction() {
+//   return round(transform(backwardFrictionSlider.value))
+// }
+// function showBackwardFriction() {
+//   backwardFrictionReadout.innerHTML = backwardFriction();
+// }
 
 function sinAmplitude() { return round(transform(sinAmplitudeSlider.value)); }
+function defaultSinAmplitude() { return inverse_transform(7.0); }
 function showSinAmplitude() { sinAmplitudeReadout.innerHTML = sinAmplitude(); }
 
 function sinWaveNumber() { return parseInt(sinWaveNumberSlider.value); }
+function defaultSinWaveNumber() { return 1; }
 function showSinWaveNumber() {
   sinWaveNumberReadout.innerHTML = sinWaveNumber();
 }
@@ -227,11 +235,13 @@ function showSinWaveNumber() {
 function liftSinAmplitude() {
   return round(transform(liftSinAmplitudeSlider.value));
 }
+function defaultLiftSinWaveAmplitude() { return inverse_transform(0.5); }
 function showLiftSinAmplitude() {
   liftSinAmplitudeReadout.innerHTML = liftSinAmplitude();
 }
 
 function liftSinWaveNumber() { return parseInt(liftSinWaveNumberSlider.value); }
+function defaultLiftSinWaveNumber() { return defaultSinWaveNumber(); }
 function showLiftSinWaveNumber() {
   liftSinWaveNumberReadout.innerHTML = liftSinWaveNumber();
 }
@@ -239,7 +249,14 @@ function showLiftSinWaveNumber() {
 function liftSinPhase() {
   return round(parseFloat(liftSinPhaseSlider.value) * 0.01);
 }
+function defaultLiftSinPhase() { return 0.0; }
 function showLiftSinPhase() { liftSinPhaseReadout.innerHTML = liftSinPhase(); }
+
+function liftExpCoeff() {
+  return round(parseFloat(liftExpCoeffSlider.value) * 0.1);
+}
+function defaultLiftExpCoeff() { return inverse_transform(0.1); }
+function showLiftExpCoeff() { liftExpCoeffReadout.innerHTML = liftExpCoeff(); }
 
 // selections
 const curvatureSelection = document.querySelector("#curvatureSelection");
@@ -248,8 +265,8 @@ const liftSelection = document.querySelector("#liftSelection");
 // sliders
 const froudeNumberSlider = document.querySelector("#froudeNumberSlider");
 const lateralFrictionSlider = document.querySelector("#lateralFrictionSlider");
-const backwardFrictionSlider =
-    document.querySelector("#backwardFrictionSlider");
+// const backwardFrictionSlider =
+//     document.querySelector("#backwardFrictionSlider");
 const sinAmplitudeSlider = document.querySelector("#sinAmplitudeSlider");
 const sinWaveNumberSlider = document.querySelector("#sinWaveNumberSlider");
 const liftSinAmplitudeSlider =
@@ -257,6 +274,7 @@ const liftSinAmplitudeSlider =
 const liftSinWaveNumberSlider =
     document.querySelector("#liftSinWaveNumberSlider");
 const liftSinPhaseSlider = document.querySelector("#liftSinPhaseSlider");
+const liftExpCoeffSlider = document.querySelector("#liftExpCoeffSlider");
 
 // readouts for selections
 const curvatureActivationReadout =
@@ -267,8 +285,8 @@ const liftActivationReadout = document.querySelector("#liftActivationReadout");
 const froudeNumberReadout = document.querySelector("#froudeNumberReadout");
 const lateralFrictionReadout =
     document.querySelector("#lateralFrictionReadout");
-const backwardFrictionReadout =
-    document.querySelector("#backwardFrictionReadout");
+// const backwardFrictionReadout =
+//     document.querySelector("#backwardFrictionReadout");
 const sinAmplitudeReadout = document.querySelector("#sinAmplitudeReadout");
 const sinWaveNumberReadout = document.querySelector("#sinWaveNumberReadout");
 const liftSinAmplitudeReadout =
@@ -276,9 +294,11 @@ const liftSinAmplitudeReadout =
 const liftSinWaveNumberReadout =
     document.querySelector("#liftSinWaveNumberReadout");
 const liftSinPhaseReadout = document.querySelector("#liftSinPhaseReadout");
+const liftExpCoeffReadout = document.querySelector("#liftExpCoeffReadout");
 
 // button
 const simulateButton = document.querySelector("#simulateButton");
+const resetButton = document.querySelector('#resetButton');
 
 function startSimulatorWithLoadingButton() {
   simulateButton.classList.add("button--loading");
@@ -287,6 +307,7 @@ function startSimulatorWithLoadingButton() {
 }
 
 simulateButton.addEventListener('click', startSimulatorWithLoadingButton);
+resetButton.addEventListener('click', defaultSimulationParameters);
 
 function addListeners() {
 
@@ -294,19 +315,20 @@ function addListeners() {
     // return a closure
     return () => {
       fns.forEach(fn => fn());
-      startSimulatorWithLoadingButton();
+      // startSimulatorWithLoadingButton();
     }
   };
 
   const slider_pairs = [
     [ froudeNumberSlider, reset_and_(showFroudeNumber) ],
     [ lateralFrictionSlider, reset_and_(showLateralFriction) ],
-    [ backwardFrictionSlider, reset_and_(showBackwardFriction) ],
+    // [ backwardFrictionSlider, reset_and_(showBackwardFriction) ],
     [ sinAmplitudeSlider, reset_and_(showSinAmplitude) ],
     [ sinWaveNumberSlider, reset_and_(showSinWaveNumber) ],
     [ liftSinAmplitudeSlider, reset_and_(showLiftSinAmplitude) ],
     [ liftSinWaveNumberSlider, reset_and_(showLiftSinWaveNumber) ],
-    [ liftSinPhaseSlider, reset_and_(showLiftSinPhase) ]
+    [ liftSinPhaseSlider, reset_and_(showLiftSinPhase) ],
+    [ liftExpCoeffSlider, reset_and_(showLiftExpCoeff) ]
   ]
   slider_pairs.forEach((p) => {
     // p[0].addEventListener("input", p[1]);
@@ -329,7 +351,7 @@ function showStaticParameterInfo() {
   // physical parameters
   showFroudeNumber();
   showLateralFriction();
-  showBackwardFriction();
+  // showBackwardFriction();
 }
 
 function showParameterInfo() {
@@ -345,6 +367,8 @@ function showParameterInfo() {
     showLiftSinAmplitude();
     showLiftSinWaveNumber();
     showLiftSinPhase();
+
+    showLiftExpCoeff();
   });
 }
 
@@ -353,7 +377,7 @@ function getPlotLayout() {
   return {
     xaxis: {
       title: 'x',
-      range: [ -1, 1 ],
+      range: [ -0.5, 2.5 ],
       zeroline: false,
       // linecolor : 'black',
       // linewidth : 2,
@@ -362,7 +386,7 @@ function getPlotLayout() {
           title: 'y',
           scaleanchor: "x",
           scaleratio: 1,
-          range: [ -1, 1 ],
+          range: [ -0.5, 0.5 ],
           zeroline: false,
           // linecolor : 'black',
           // linewidth : 2,
@@ -399,30 +423,73 @@ function assembleDataForPlot(data, col) {
   } ]
 }
 
+// function staticPlot(all_data, all_com, all_alpha) {
+//   plot_data = [];
+//   for (var i = 0; i < all_data.length; ++i) {
+//     const curr_alpha = all_alpha[i];
+
+//     plot_data = plot_data.concat(
+//         assembleDataForPlot(all_data[i], `rgba(41, 118, 187,
+//         ${curr_alpha})`));
+//   }
+
+//   // add a scatter to the plot data
+//   const com_x = all_com.map(res => res[0][0]);
+//   const com_y = all_com.map(res => res[1][0]);
+
+//   plot_data = plot_data.concat([ {
+//     x : com_x,
+//     y : com_y,
+//     mode : 'lines',
+//     type : 'scatter',
+//     line : {color : 'rgb(0, 0, 0)', dash : 'dot', width : 1}
+//     // marker : {size : 8, color : 'rgb(0, 0, 0)'}
+//   } ]);
+
+//   // console.log(plot_data);
+
+//   Plotly.newPlot('plot_div', plot_data, getPlotLayout());
+// }
+
 function staticPlot(all_data, all_com, all_alpha) {
   plot_data = [];
-  for (var i = 0; i < all_data.length; ++i) {
-    const curr_alpha = all_alpha[i];
-
-    plot_data = plot_data.concat(
-        assembleDataForPlot(all_data[i], `rgba(41, 118, 187, ${curr_alpha})`));
-  }
+  let plotDiv = document.getElementById('plot_div');
 
   // add a scatter to the plot data
   const com_x = all_com.map(res => res[0][0]);
   const com_y = all_com.map(res => res[1][0]);
 
-  plot_data = plot_data.concat([ {
+  plot_data = [ {
     x : com_x,
     y : com_y,
-    mode : 'markers',
+    mode : 'lines',
     type : 'scatter',
-    marker : {size : 8, color : 'rgb(0, 0, 0)'}
-  } ]);
+    line : {color : 'rgb(0, 0, 0)', dash : 'dot', width : 1}
+    // marker : {size : 8, color : 'rgb(0, 0, 0)'}
+  } ];
 
+  // Plotly.newPlot(plotDiv, plot_data, getPlotLayout());
+
+  // var i_counter = 0; // To keep under proper scope
+  for (var i = 0; i < all_data.length; ++i) {
+    setTimeout(function(data, alpha, index) {
+      const curr_alpha = alpha[index];
+
+      Plotly.addTraces(
+          plotDiv, assembleDataForPlot(data[index],
+                                       `rgba(41, 118, 187, ${curr_alpha})`));
+    }, 40, all_data, all_alpha, i);
+
+    // const curr_alpha = all_alpha[i];
+
+    // Plotly.addTraces(
+    //     plotDiv,
+    //     assembleDataForPlot(all_data[i], `rgba(41, 118, 187,
+    //     ${curr_alpha})`));
+  }
+
+  Plotly.addTraces(plotDiv, plot_data);
   // console.log(plot_data);
-
-  Plotly.newPlot('plot_div', plot_data, getPlotLayout());
 }
 
 // build up config
@@ -430,7 +497,10 @@ async function buildSimulationConfig() {
 
   const froude = parseFloat(froudeNumber());
   const mu_f = parseFloat(1.0);
-  const mu_b = parseFloat(backwardFriction() * mu_f);
+  // const mu_b = parseFloat(backwardFriction() * mu_f);
+
+  // I set it to a default value since Mattia wants it
+  const mu_b = 1.5;
   const mu_lat = parseFloat(lateralFriction() * mu_f);
 
   const physicalParams = new Map([
@@ -442,6 +512,22 @@ async function buildSimulationConfig() {
 
   return new Map(
       [...physicalParams, ...getCurvatureParams(), ...getLiftParams() ]);
+}
+
+function defaultSimulationParameters() {
+  // set default here
+  // sliders
+  froudeNumberSlider.value = defaultFroudeNumber();
+  lateralFrictionSlider.value = defaultLateralFriction();
+  sinAmplitudeSlider.value = defaultSinAmplitude();
+  sinWaveNumberSlider.value = defaultSinWaveNumber();
+  liftSinAmplitudeSlider.value = defaultLiftSinWaveAmplitude();
+  liftSinWaveNumberSlider.value = defaultLiftSinWaveNumber();
+  liftSinPhaseSlider.value = defaultLiftSinPhase();
+  liftExpCoeffSlider.value = defaultLiftExpCoeff();
+
+  showStaticParameterInfo();
+  showParameterInfo();
 }
 
 // this function return the promise of pyodide runPython function
@@ -463,8 +549,8 @@ function generateSimulator(final_time, n_points, config) {
 
 // this function execute the animation
 async function runSimulator(config) {
-  const final_time = 16.0;
-  const n_samples = 12;
+  const final_time = 40.0; // increases to twice the earlier amount
+  const n_samples = 24;
   const com_n_samples = 3 * n_samples;
   const iters = linspace(0, com_n_samples, n_samples, endpoint = false);
   const com_iters = linspace(0, com_n_samples, com_n_samples, endpoint = false);
@@ -628,7 +714,8 @@ addListeners();
 
 // display at first go
 MathJax.Hub.Queue([ "Typeset", MathJax.Hub ]);
-showStaticParameterInfo();
+defaultSimulationParameters();
+// showStaticParameterInfo();
 
 placeholderPlot();
 
