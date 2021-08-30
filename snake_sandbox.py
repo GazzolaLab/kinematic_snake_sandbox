@@ -68,14 +68,14 @@ def simulate_snake_with_sin_exp_lift(
 ):
     epsilon = snake_params['epsilon']
     wave_number = snake_params['wave_number']
-    a_value = snake_params.get('lift_a_value', 0.02)
-    print(a_value)
+    a_value = snake_params['lift_a_value']
+    # print(a_value)
 
     def my_custom_lifting_activation(s, time_v):
         if time_v > 2.0:
-            lateral_wave = epsilon * np.cos(wave_number * np.pi * (s + time_v))
+            lateral_wave = epsilon * np.cos(2.0 * wave_number * np.pi * (s + time_v))
             liftwave = np.exp(-(a_value ** 2) * lateral_wave ** 2)
-            np.maximum(0, liftwave, out=liftwave)
+            # np.maximum(0, liftwave, out=liftwave)
             return liftwave / trapz(liftwave, s)
         else:
             return 1.0 + 0.0 * s
