@@ -96,7 +96,7 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
       <!-- Physical parameters box -->
       <div class="row">
         <!--- Lateral friction ratio --->
-        <span>Lateral friction ratio \(\mu_t / \mu_f\) = </span> <span id="lateralFrictionReadout"> </span>
+        <span>Friction ratio \(\mu_t / \mu_f\) = </span> <span id="lateralFrictionReadout"> </span>
         <br>
         <div class="row">
           <span class="column">
@@ -134,7 +134,7 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
       <!-- Curvature selection pane -->
       <h3 style="text-align:center;">
-        Curvature parameters
+        Lateral wave
       </h3>
 
       <!-- Curvature selection box -->
@@ -191,11 +191,11 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
               </div>
 
               <!--- Wavenumber --->
-              <div class="row">
+              <div class="row" style="display: none;">
                 <span>Wavenumber \( k \) = </span> <span id="sinWaveNumberReadout"> </span>
               </div>
 
-              <div class="row">
+              <div class="row" style="display: none;">
                 <span>
                   <input type="range" min="1" max="4" step="1" value="2"
                   id="sinWaveNumberSlider">
@@ -215,12 +215,11 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
       </div>
 
-
       <hr>
 
-      <!-- Curvature selection pane -->
+      <!-- Lift selection pane -->
       <h3 style="text-align:center;">
-        Lift parameters
+        Lifting Wave
       </h3>
 
       <!-- Lift selection box -->
@@ -271,14 +270,14 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
               <div class="row">
                 <span>
-                  <input type="range" min="0" max="20" step="5" value="10"
+                  <input type="range" min="0" max="200" step="10" value="20"
                   id="liftSinAmplitudeSlider">
                 </span>
               </div>
 
               <!--- Wavenumber --->
               <div class="row">
-                <span>Wavenumber \( k_l \) = </span> <span id="liftSinWaveNumberReadout"> </span>
+                <span>Wavenumber ratio \( \lambda =  k_l / k \) = </span> <span id="liftSinWaveNumberReadout"> </span>
               </div>
 
               <div class="row">
@@ -295,7 +294,7 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
               <div class="row">
                 <span>
-                  <input type="range" min="0" max="100" step="10" value="0"
+                  <input type="range" min="0" max="100" step="5" value="0"
                   id="liftSinPhaseSlider">
                 </span>
               </div>
@@ -334,6 +333,21 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
   </div>
 </div>
+
+<hr>
+
+<footer>
+  <p style="font-size:14px; text-align:center;">
+    Designed by <a href="https://parthas1.github.io/">Tejaswin Parthasarathy</a>.
+    Powered by <a href="https://pyodide.org/en/stable/">Pyodide</a>.
+  </p>
+
+
+  <p style="font-size:14px; text-align:center;">
+    Copyright © 2021 <a href="https://parthas1.github.io/">Tejaswin Parthasarathy</a>, <a href="https://mattia-lab.com/">MattiaLab</a>.
+  </p>
+</footer>
+
 
 <!--   <div id="content_1" class="inv">Content 1</div> -->
 <script type="text/javascript" src="snake_sandbox.js" defer></script>

@@ -204,13 +204,13 @@ async function showLiftInfo() {
 }
 
 function froudeNumber() { return round(transform(froudeNumberSlider.value)); }
-function defaultFroudeNumber() { return inverse_transform(0.5); }
+function defaultFroudeNumber() { return inverse_transform(0.1); }
 function showFroudeNumber() { froudeNumberReadout.innerHTML = froudeNumber(); }
 
 function lateralFriction() {
   return round(transform(lateralFrictionSlider.value));
 }
-function defaultLateralFriction() { return inverse_transform(2.0); }
+function defaultLateralFriction() { return inverse_transform(1.0); }
 function showLateralFriction() {
   lateralFrictionReadout.innerHTML = lateralFriction();
 }
@@ -233,23 +233,28 @@ function showSinWaveNumber() {
 }
 
 function liftSinAmplitude() {
-  return round(transform(liftSinAmplitudeSlider.value));
+  // 0 to 200 in steps of 10, but without zeroing it out
+  return round(parseInt(liftSinAmplitudeSlider.value) * 0.01);
 }
-function defaultLiftSinWaveAmplitude() { return inverse_transform(0.5); }
+function defaultLiftSinWaveAmplitude() { return parseInt(0.25 * 100); }
 function showLiftSinAmplitude() {
   liftSinAmplitudeReadout.innerHTML = liftSinAmplitude();
 }
 
-function liftSinWaveNumber() { return parseInt(liftSinWaveNumberSlider.value); }
+// sin Wave number is now sine wave number ratio lambda
+function liftSinWaveNumber() {
+  // always an integer, so parse an Int
+  return sinWaveNumber() * parseInt(liftSinWaveNumberSlider.value);
+}
 function defaultLiftSinWaveNumber() { return defaultSinWaveNumber(); }
 function showLiftSinWaveNumber() {
   liftSinWaveNumberReadout.innerHTML = liftSinWaveNumber();
 }
 
 function liftSinPhase() {
-  return round(parseFloat(liftSinPhaseSlider.value) * 0.01);
+  return round(parseFloat(liftSinPhaseSlider.value) * 0.01, precision = 2);
 }
-function defaultLiftSinPhase() { return 0.0; }
+function defaultLiftSinPhase() { return parseInt(0.25 * 100); }
 function showLiftSinPhase() { liftSinPhaseReadout.innerHTML = liftSinPhase(); }
 
 function liftExpCoeff() {
@@ -331,7 +336,8 @@ function addListeners() {
     [ liftExpCoeffSlider, reset_and_(showLiftExpCoeff) ]
   ]
   slider_pairs.forEach((p) => {
-    // p[0].addEventListener("input", p[1]);
+    // added back since we are not starting a new simulation everytime
+    p[0].addEventListener("input", p[1]);
     p[0].addEventListener("change", p[1]);
   });
 
@@ -698,7 +704,7 @@ async function init() {
 
   // now change the curvature and lift selection to sin
   curvatureSelection.selectedIndex = 1; // select sin
-  liftSelection.selectedIndex = 0;      // select none
+  liftSelection.selectedIndex = 1;      // select sin lift
 
   // show all info
   showParameterInfo();
