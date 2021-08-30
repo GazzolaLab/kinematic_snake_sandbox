@@ -236,7 +236,7 @@ function liftSinAmplitude() {
   // 0 to 200 in steps of 10, but without zeroing it out
   return round(parseInt(liftSinAmplitudeSlider.value) * 0.01);
 }
-function defaultLiftSinWaveAmplitude() { return parseInt(0.25 * 100); }
+function defaultLiftSinWaveAmplitude() { return parseInt(0.7 * 100); }
 function showLiftSinAmplitude() {
   liftSinAmplitudeReadout.innerHTML = liftSinAmplitude();
 }
@@ -555,8 +555,8 @@ function generateSimulator(final_time, n_points, config) {
 
 // this function execute the animation
 async function runSimulator(config) {
-  const final_time = 40.0; // increases to twice the earlier amount
-  const n_samples = 24;
+  const final_time = 24.0; // increases to twice the earlier amount
+  const n_samples = 25;
   const com_n_samples = 3 * n_samples;
   const iters = linspace(0, com_n_samples, n_samples, endpoint = false);
   const com_iters = linspace(0, com_n_samples, com_n_samples, endpoint = false);
